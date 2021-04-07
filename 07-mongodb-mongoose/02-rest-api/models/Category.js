@@ -1,12 +1,39 @@
 const mongoose = require("mongoose");
 const connection = require("../libs/connection");
 
+function toJSON () {
+  const obj = this.toObject();
+  obj.id = obj._id;
+  delete obj._id;
+  delete obj.__v;
+  return obj;
+};
+
 const subCategorySchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category"
+  }
+}, {
+  toObject: {
+    virtuals: true
+  },
+  toJSON: {
+    virtuals: true,
+  }
 });
+
+
+subCategorySchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+subCategorySchema.methods.toJSON = toJSON
+
 
 const categorySchema = new mongoose.Schema({
   title: {
@@ -23,22 +50,17 @@ const categorySchema = new mongoose.Schema({
 });
 
 categorySchema.virtual("subcategories", {
-  ref: "SubCategory",
+  ref: "subcategory",
   localField: "_id",
-  foreignField: "SubCategory",
+  foreignField: "category",
   justOne: false,
 });
 
-categorySchema.methods.toJSON = function () {
-  const obj = this.toObject();
-  obj.id = obj._id;
-  delete obj._id;
-  delete obj.__v;
-  return obj;
-};
 
-const Category = connection.model("Category", categorySchema);
-const subCategory = connection.model("SubCategory", subCategorySchema);
+categorySchema.methods.toJSON = toJSON
 
-module.exports = {subCategory, Category};
+const Category = connection.model("category", categorySchema);
+
+
+module.exports = Category;
 
