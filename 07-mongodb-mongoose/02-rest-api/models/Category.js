@@ -60,7 +60,7 @@ categorySchema.virtual("subcategories", {
 categorySchema.methods.toJSON = toJSON
 
 const Category = connection.model("category", categorySchema);
-
+const SubCategory = connection.model("subcategory", subCategorySchema)
 
 module.exports = Category;
-
+module.exports = SubCategory
