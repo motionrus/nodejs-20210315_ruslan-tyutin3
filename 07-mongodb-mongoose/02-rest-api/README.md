@@ -78,7 +78,7 @@
     id: '5d20d32d3a0676032a9a3174',
     title: 'Product1',
     images: [ 'image1' ],
-    category: '5d20d32d3a0676032a9a3172',
+    categoryModel: '5d20d32d3a0676032a9a3172',
     subcategory: '5d20d32d3a0676032a9a3173',
     price: 10,
     description: 'Description1'
