@@ -39,4 +39,4 @@ async function select() {
   console.log(result)
 }
 
-select().then(() => mongoose.disconnect())
+create().then(() => mongoose.disconnect())

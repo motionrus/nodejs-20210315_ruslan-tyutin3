@@ -1,28 +1,35 @@
 const Product = require("../models/Product");
-const ObjectId = require("mongodb").ObjectID;
+const mongoose = require("mongoose");
+
 
 function isValid(pathname) {
-  return (pathname.split("/").length === 4);
+  if (pathname.split("/").length === 4) {
+    const objId = pathname.split("/").pop();
+    return mongoose.Types.ObjectId.isValid(objId);
+  }
+  return false;
 }
 
 module.exports.productsBySubcategory = async function productsBySubcategory(ctx, next) {
   const {subcategory} = ctx.query;
   if (!subcategory) return next();
-  const product = await Product.findOne({subcategory: ObjectId(subcategory)});
+  const products = await Product.find({subcategory: mongoose.Types.ObjectId(subcategory)});
 
   ctx.body = {
-    id: product.id,
-    title: product.title,
-    images: product.images,
-    category: product.category,
-    subcategory: product.subcategory,
-    price: product.price,
-    description: product.description,
+    products: products.map(product => ({
+      id: product.id,
+      title: product.title,
+      images: product.images,
+      category: product.category,
+      subcategory: product.subcategory,
+      price: product.price,
+      description: product.description,
+    }))
   };
 };
 
 module.exports.productList = async function productList(ctx, next) {
-  ctx.body = (await Product.find({})).map(product => ({
+  const products = (await Product.find({})).map(product => ({
     id: product.id,
     title: product.title,
     images: product.images,
@@ -31,12 +38,15 @@ module.exports.productList = async function productList(ctx, next) {
     price: product.price,
     description: product.description,
   }));
+  ctx.body = {
+    products: products
+  }
 };
 
 module.exports.productById = async function productById(ctx, next) {
   if (!isValid(ctx.request.url)) {
     ctx.response.status = 400;
-    next();
+    return next();
   }
   const productId = ctx.req.url.split("/").pop();
   const product = await Product.findOne({_id: productId});
@@ -44,6 +54,16 @@ module.exports.productById = async function productById(ctx, next) {
     ctx.code = 404;
     return;
   }
-  ctx.body = product;
+  ctx.body = {
+    product: {
+      id: product.id,
+      title: product.title,
+      images: product.images,
+      category: product.category,
+      subcategory: product.subcategory,
+      price: product.price,
+      description: product.description,
+    }
+  };
 };
 
